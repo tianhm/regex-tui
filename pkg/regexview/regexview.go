@@ -9,9 +9,12 @@ import (
 )
 
 var (
-	matchStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("4")).
-		Bold(true)
+	evenMatchStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("2")).
+			Bold(true)
+	oddMatchStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("3")).
+			Bold(true)
 )
 
 type Model struct {
@@ -45,9 +48,14 @@ func (m Model) View() string {
 	lastIndex := 0
 
 	matches := m.expression.FindAllStringIndex(m.value, -1)
-	for _, match := range matches {
+	for i, match := range matches {
+		s := &evenMatchStyle
+		if i%2 == 1 {
+			s = &oddMatchStyle
+		}
+
 		b.WriteString(m.value[lastIndex:match[0]])
-		b.WriteString(matchStyle.Render(m.value[match[0]:match[1]]))
+		b.WriteString(s.Render(m.value[match[0]:match[1]]))
 		lastIndex = match[1]
 	}
 
