@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/vitor-mariano/regex-tui/pkg/regexview"
 )
 
@@ -23,6 +24,21 @@ const (
 	initialSubject    = "Hello World!"
 )
 
+var (
+	primaryColor = lipgloss.Color("12")
+
+	titleStyle = lipgloss.NewStyle().
+			Background(primaryColor).
+			Bold(true).
+			Padding(0, 1).
+			MarginLeft(1)
+	inputContainerStyle = lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder()).
+				Padding(0, 1)
+	focusedInputContainerStyle = inputContainerStyle.
+					BorderForeground(primaryColor)
+)
+
 type model struct {
 	expressionInput textinput.Model
 	subjectInput    textarea.Model
@@ -31,13 +47,15 @@ type model struct {
 	focusedInputType inputType
 	expression       string
 	subject          string
+	width            int
+	height           int
 }
 
 func initialModel() model {
 	m := model{
 		expressionInput: textinput.New(),
 		subjectInput:    textarea.New(),
-		subjectView:     regexview.New(),
+		subjectView:     regexview.New(0, 0),
 	}
 
 	m.expressionInput.SetValue(initialExpression)
@@ -81,21 +99,40 @@ func (m *model) updateInputs(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		const (
+			expInputHSpacing    = 6
+			subjInputHSpacing   = 5
+			subjInputTopSpacing = 8
+		)
+
+		m.width = msg.Width
+		m.height = msg.Height
+		m.expressionInput.Width = m.width - expInputHSpacing
+		m.subjectView.SetSize(m.width-subjInputHSpacing, m.height-subjInputTopSpacing)
+		m.subjectInput.SetWidth(m.width - subjInputHSpacing)
+		m.subjectInput.SetHeight(m.height - subjInputTopSpacing)
+
+		return m, nil
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
+
 		case tea.KeyTab, tea.KeyShiftTab:
 			switch m.focusedInputType {
 			case inputTypeExpression:
 				m.focusedInputType = inputTypeSubject
 				m.expressionInput.Blur()
 				m.subjectInput.Focus()
+
 			case inputTypeSubject:
 				m.focusedInputType = inputTypeExpression
 				m.subjectInput.Blur()
 				m.expressionInput.Focus()
 			}
+
 			return m, nil
 		}
 	}
@@ -106,20 +143,29 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	var b strings.Builder
 
-	b.WriteString(m.expressionInput.View())
+	b.WriteString(titleStyle.Render("Regex TUI"))
+	b.WriteRune('\n')
+
+	s := &inputContainerStyle
+	if m.focusedInputType == inputTypeExpression {
+		s = &focusedInputContainerStyle
+	}
+	b.WriteString(s.Render(m.expressionInput.View()))
 	b.WriteRune('\n')
 
 	if m.focusedInputType == inputTypeSubject {
-		b.WriteString(m.subjectInput.View())
+		b.WriteString(focusedInputContainerStyle.Render(m.subjectInput.View()))
 	} else {
-		b.WriteString(m.subjectView.View())
+		b.WriteString(inputContainerStyle.Render(m.subjectView.View()))
 	}
 
 	return b.String()
 }
 
 func main() {
-	if _, err := tea.NewProgram(initialModel()).Run(); err != nil {
+	if _, err := tea.NewProgram(initialModel(),
+		tea.WithAltScreen(),
+	).Run(); err != nil {
 		fmt.Printf("could not start program: %s\n", err)
 		os.Exit(1)
 	}

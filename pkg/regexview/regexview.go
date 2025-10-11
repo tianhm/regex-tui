@@ -10,17 +10,22 @@ import (
 
 var (
 	matchStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("205")).
+		Background(lipgloss.Color("4")).
 		Bold(true)
 )
 
 type Model struct {
 	expression *regexp.Regexp
 	value      string
+	width      int
+	height     int
 }
 
-func New() Model {
-	return Model{}
+func New(width, height int) Model {
+	return Model{
+		width:  width,
+		height: height,
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -48,7 +53,7 @@ func (m Model) View() string {
 
 	b.WriteString(m.value[lastIndex:])
 
-	return b.String()
+	return lipgloss.Place(m.width, m.height, lipgloss.Left, lipgloss.Left, b.String())
 }
 
 func (m *Model) SetExpression(expression *regexp.Regexp) {
@@ -65,4 +70,17 @@ func (m *Model) SetExpressionString(expression string) error {
 
 func (m *Model) SetValue(value string) {
 	m.value = value
+}
+
+func (m *Model) SetWidth(width int) {
+	m.width = width
+}
+
+func (m *Model) SetHeight(height int) {
+	m.height = height
+}
+
+func (m *Model) SetSize(width, height int) {
+	m.SetWidth(width)
+	m.SetHeight(height)
 }
