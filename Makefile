@@ -9,7 +9,7 @@ clean:
 	rm -f bin/regex-tui
 
 .PHONY: install
-install: build
+install:
 	cp bin/regex-tui /usr/local/bin/regex-tui
 
 .PHONY: uninstall
