@@ -6,12 +6,27 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/bubbles/v2/key"
+	"github.com/charmbracelet/bubbles/v2/textarea"
+	"github.com/charmbracelet/bubbles/v2/textinput"
+	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/vitor-mariano/regex-tui/pkg/regexview"
 )
+
+type keyMap struct {
+	Exit        key.Binding
+	SwitchInput key.Binding
+}
+
+var keys = keyMap{
+	Exit: key.NewBinding(
+		key.WithKeys("ctrl+c", "esc"),
+	),
+	SwitchInput: key.NewBinding(
+		key.WithKeys("tab", "shift+tab"),
+	),
+}
 
 type inputType int
 
@@ -57,7 +72,7 @@ var (
 
 type model struct {
 	expressionInput textinput.Model
-	subjectInput    textarea.Model
+	subjectInput    *textarea.Model
 	subjectView     regexview.Model
 
 	focusedInputType inputType
@@ -65,6 +80,7 @@ type model struct {
 	subject          string
 	width            int
 	height           int
+	initCmds         []tea.Cmd
 }
 
 func initialModel() model {
@@ -77,7 +93,16 @@ func initialModel() model {
 	m.expressionInput.SetValue(initialExpression)
 	m.expressionInput.Prompt = ""
 	m.expressionInput.Placeholder = "Expression"
-	m.expressionInput.Focus()
+	m.expressionInput.SetVirtualCursor(true)
+	m.expressionInput.SetStyles(textinput.Styles{
+		Cursor: textinput.CursorStyle{
+			Color: primaryColor,
+			Blink: true,
+		},
+	})
+	if cmd := m.expressionInput.Focus(); cmd != nil {
+		m.initCmds = append(m.initCmds, cmd)
+	}
 	m.expressionInput.Validate = func(s string) error {
 		_, err := regexp.Compile(s)
 		return err
@@ -86,9 +111,16 @@ func initialModel() model {
 	m.subjectInput.SetValue(initialSubject)
 	m.subjectInput.Prompt = ""
 	m.subjectInput.ShowLineNumbers = false
-	m.subjectInput.FocusedStyle = textarea.Style{
-		CursorLine: lipgloss.NewStyle().UnsetBackground(),
-	}
+	m.subjectInput.SetVirtualCursor(true)
+	m.subjectInput.SetStyles(textarea.Styles{
+		Cursor: textarea.CursorStyle{
+			Color: primaryColor,
+			Blink: true,
+		},
+		Focused: textarea.StyleState{
+			CursorLine: lipgloss.NewStyle().UnsetBackground(),
+		},
+	})
 
 	m.subjectView.SetExpressionString(initialExpression)
 	m.subjectView.SetValue(initialSubject)
@@ -97,7 +129,8 @@ func initialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
-	return textinput.Blink
+	cmds := append([]tea.Cmd{textinput.Blink, textarea.Blink}, m.initCmds...)
+	return tea.Batch(cmds...)
 }
 
 func (m *model) updateInputs(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -122,6 +155,7 @@ func (m *model) updateInputs(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, 2)
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		const (
@@ -132,39 +166,41 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.width = msg.Width
 		m.height = msg.Height
-		m.expressionInput.Width = m.width - expInputHSpacing
+		m.expressionInput.SetWidth(m.width - expInputHSpacing)
 		m.subjectView.SetSize(m.width-subjInputHSpacing, m.height-subjInputTopSpacing)
 		m.subjectInput.SetWidth(m.width - subjInputHSpacing)
 		m.subjectInput.SetHeight(m.height - subjInputTopSpacing)
 
-		return m, nil
-
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
+	case tea.KeyPressMsg:
+		switch {
+		case key.Matches(msg, keys.Exit):
 			return m, tea.Quit
 
-		case tea.KeyTab, tea.KeyShiftTab:
+		case key.Matches(msg, keys.SwitchInput):
+			var cmd tea.Cmd
 			switch m.focusedInputType {
 			case inputTypeExpression:
 				m.focusedInputType = inputTypeSubject
 				m.expressionInput.Blur()
-				m.subjectInput.Focus()
+				cmd = m.subjectInput.Focus()
 
 			case inputTypeSubject:
 				m.focusedInputType = inputTypeExpression
 				m.subjectInput.Blur()
-				m.expressionInput.Focus()
+				cmd = m.expressionInput.Focus()
 			}
 
-			return m, nil
+			cmds = append(cmds, cmd)
 		}
 	}
 
-	return m.updateInputs(msg)
+	_, cmd := m.updateInputs(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	var b strings.Builder
 
 	b.WriteString(titleStyle.Render("Regex TUI"))
@@ -192,13 +228,11 @@ func (m model) View() string {
 		helpStyle.Render("switch input")
 	b.WriteString(helpContainerStyle.Render(h))
 
-	return b.String()
+	return tea.NewView(b.String())
 }
 
 func main() {
-	if _, err := tea.NewProgram(initialModel(),
-		tea.WithAltScreen(),
-	).Run(); err != nil {
+	if _, err := tea.NewProgram(initialModel()).Run(); err != nil {
 		fmt.Printf("could not start program: %s\n", err)
 		os.Exit(1)
 	}
