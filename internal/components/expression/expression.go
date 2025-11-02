@@ -13,7 +13,7 @@ type Model struct {
 	width int
 }
 
-func New(initialValue string) Model {
+func New(initialValue string) *Model {
 	m := textinput.New()
 	m.SetValue(initialValue)
 	m.SetVirtualCursor(true)
@@ -30,21 +30,21 @@ func New(initialValue string) Model {
 		return err
 	}
 
-	return Model{input: m}
+	return &Model{input: m}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	m.input, cmd = m.input.Update(msg)
 
-	return m, cmd
+	return cmd
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	s := &styles.InputContainerStyle
 	if m.input.Err != nil {
 		s = &styles.ErrorInputContainerStyle

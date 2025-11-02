@@ -10,11 +10,11 @@ import (
 
 type Model struct {
 	input         *textarea.Model
-	subjectView   regexview.Model
+	view          *regexview.Model
 	width, height int
 }
 
-func New(initialValue, initialExpression string) Model {
+func New(initialValue, initialExpression string) *Model {
 	m := textarea.New()
 	m.SetValue(initialValue)
 	m.SetVirtualCursor(true)
@@ -34,22 +34,22 @@ func New(initialValue, initialExpression string) Model {
 	sv.SetExpressionString(initialExpression)
 	sv.SetValue(initialValue)
 
-	return Model{input: m, subjectView: sv}
+	return &Model{input: m, view: sv}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return textarea.Blink
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	m.input, cmd = m.input.Update(msg)
-	m.subjectView.SetValue(m.input.Value())
+	m.view.SetValue(m.input.Value())
 
-	return m, cmd
+	return cmd
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	s := &styles.InputContainerStyle
 	if m.input.Err != nil {
 		s = &styles.ErrorInputContainerStyle
@@ -59,7 +59,7 @@ func (m Model) View() string {
 
 	v := m.input.View()
 	if !m.input.Focused() {
-		v = m.subjectView.View()
+		v = m.view.View()
 	}
 
 	return s.Width(m.width).Render(v)
@@ -73,7 +73,7 @@ func (m *Model) SetSize(width, height int) {
 	m.input.SetWidth(width)
 	m.input.SetHeight(height)
 
-	m.subjectView.SetSize(width-subjectHSpacing, height)
+	m.view.SetSize(width-subjectHSpacing, height)
 }
 
 func (m *Model) GetInput() *textarea.Model {
@@ -81,5 +81,5 @@ func (m *Model) GetInput() *textarea.Model {
 }
 
 func (m *Model) SetExpressionString(expression string) error {
-	return m.subjectView.SetExpressionString(expression)
+	return m.view.SetExpressionString(expression)
 }

@@ -22,8 +22,8 @@ const (
 )
 
 type model struct {
-	expressionInput expression.Model
-	subjectInput    subject.Model
+	expressionInput *expression.Model
+	subjectInput    *subject.Model
 	help            help.Model
 
 	focusedInputType inputType
@@ -54,12 +54,12 @@ func (m *model) setSize(width, height int) {
 func (m *model) updateInputs(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	if m.focusedInputType == inputTypeSubject {
-		m.subjectInput, cmd = m.subjectInput.Update(msg)
+		cmd = m.subjectInput.Update(msg)
 
 		return cmd
 	}
 
-	m.expressionInput, cmd = m.expressionInput.Update(msg)
+	cmd = m.expressionInput.Update(msg)
 	m.subjectInput.SetExpressionString(m.expressionInput.GetInput().Value())
 
 	return cmd

@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/muesli/reflow/wordwrap"
 )
@@ -27,19 +26,11 @@ type Model struct {
 	height     int
 }
 
-func New(width, height int) Model {
-	return Model{
+func New(width, height int) *Model {
+	return &Model{
 		width:  width,
 		height: height,
 	}
-}
-
-func (m Model) Init() tea.Cmd {
-	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	return m, nil
 }
 
 func (m *Model) renderContainer(s string) string {
@@ -50,7 +41,7 @@ func (m *Model) renderContainer(s string) string {
 	)
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	if m.expression == nil {
 		return m.renderContainer(m.value)
 	}
