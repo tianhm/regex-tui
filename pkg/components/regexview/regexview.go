@@ -20,10 +20,10 @@ var (
 )
 
 type Model struct {
-	expression *regexp.Regexp
-	value      string
-	width      int
-	height     int
+	expression    *regexp.Regexp
+	global        bool
+	value         string
+	width, height int
 }
 
 func New(width, height int) *Model {
@@ -49,7 +49,12 @@ func (m *Model) View() string {
 	var b strings.Builder
 	lastIndex := 0
 
-	matches := m.expression.FindAllStringIndex(m.value, -1)
+	var matches [][]int
+	if m.global {
+		matches = m.expression.FindAllStringIndex(m.value, -1)
+	} else {
+		matches = [][]int{m.expression.FindStringIndex(m.value)}
+	}
 	for i, match := range matches {
 		s := &evenMatchStyle
 		if i%2 == 1 {
@@ -76,6 +81,10 @@ func (m *Model) SetExpressionString(expression string) error {
 	m.SetExpression(expr)
 
 	return err
+}
+
+func (m *Model) SetGlobal(global bool) {
+	m.global = global
 }
 
 func (m *Model) SetValue(value string) {

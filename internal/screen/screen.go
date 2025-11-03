@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/vitor-mariano/regex-tui/internal/components/expression"
 	"github.com/vitor-mariano/regex-tui/internal/components/subject"
+	"github.com/vitor-mariano/regex-tui/pkg/components/multiselect"
 )
 
 type inputType int
@@ -22,20 +23,38 @@ const (
 )
 
 type model struct {
-	expressionInput *expression.Model
-	subjectInput    *subject.Model
-	help            help.Model
+	expressionInput     *expression.Model
+	subjectInput        *subject.Model
+	options             *multiselect.Model
+	isOptionsDialogOpen bool
+	help                help.Model
 
 	focusedInputType inputType
+	width, height    int
 }
+
+const (
+	globalOption = "Global"
+)
 
 func New() model {
 	ei := expression.New(initialExpression)
 	ei.GetInput().Focus()
 
+	si := subject.New(initialSubject, initialExpression)
+
+	mi := multiselect.New([]string{globalOption})
+	mi.OnToggle(func(item string, selected bool) {
+		if item == globalOption {
+			si.GetView().SetGlobal(selected)
+		}
+	})
+	mi.SetSelected(globalOption)
+
 	return model{
 		expressionInput: ei,
-		subjectInput:    subject.New(initialSubject, initialExpression),
+		subjectInput:    si,
+		options:         mi,
 		help:            help.New(),
 	}
 }
@@ -67,9 +86,12 @@ func (m *model) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, 0, 2)
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.setSize(msg.Width, msg.Height)
+		m.width = msg.Width
+		m.height = msg.Height
 
 	case tea.KeyPressMsg:
 		switch {
@@ -77,6 +99,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keys.SwitchInput):
+			if m.isOptionsDialogOpen {
+				break
+			}
+
 			var cmd tea.Cmd
 			switch m.focusedInputType {
 			case inputTypeExpression:
@@ -91,21 +117,49 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			cmds = append(cmds, cmd)
+
+		case key.Matches(msg, keys.ToggleOptions):
+			m.isOptionsDialogOpen = !m.isOptionsDialogOpen
 		}
 	}
 
-	cmd := m.updateInputs(msg)
-	cmds = append(cmds, cmd)
+	if m.isOptionsDialogOpen {
+		cmds = append(cmds, m.options.Update(msg))
+	} else {
+		cmds = append(cmds, m.updateInputs(msg))
+	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() tea.View {
-	return tea.NewView(lipgloss.JoinVertical(
+	var helpKeyMap help.KeyMap = keys
+	if m.isOptionsDialogOpen {
+		helpKeyMap = multiselect.Keys
+	}
+
+	baseLayer := lipgloss.NewLayer(lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		m.expressionInput.View(),
 		m.subjectInput.View(),
-		m.help.View(keys),
+		m.help.View(helpKeyMap),
 	))
+
+	layers := []*lipgloss.Layer{baseLayer}
+	if m.isOptionsDialogOpen {
+		optionsLayer := lipgloss.NewLayer(
+			lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("240")).
+				Padding(1, 4, 1, 2).
+				Render(m.options.View()),
+		)
+		optionsLayer.X((m.width - optionsLayer.GetWidth()) / 2)
+		optionsLayer.Y((m.height - optionsLayer.GetHeight()) / 2)
+
+		layers = append(layers, optionsLayer)
+	}
+
+	return tea.NewView(lipgloss.NewCanvas(layers...).Render())
 }

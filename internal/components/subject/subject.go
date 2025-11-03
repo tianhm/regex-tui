@@ -5,7 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/vitor-mariano/regex-tui/internal/styles"
-	"github.com/vitor-mariano/regex-tui/pkg/regexview"
+	"github.com/vitor-mariano/regex-tui/pkg/components/regexview"
 )
 
 type Model struct {
@@ -78,6 +78,10 @@ func (m *Model) SetSize(width, height int) {
 
 func (m *Model) GetInput() *textarea.Model {
 	return m.input
+}
+
+func (m *Model) GetView() *regexview.Model {
+	return m.view
 }
 
 func (m *Model) SetExpressionString(expression string) error {
