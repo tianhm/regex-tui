@@ -33,4 +33,16 @@ Sleep 1s
 Type "\w"
 Sleep 1s
 Type "+"
+Sleep 2s
+Ctrl+P
+Sleep 1s
+Type "x"
+Sleep 2s
+Type "x"
+Sleep 1s
+Type "j"
+Sleep 1s
+Type "x"
+Sleep 2s
+Ctrl+P
 Sleep 4s

@@ -10,6 +10,7 @@ A terminal user interface (TUI) application for testing and visualizing regular 
 - Real-time feedback as you type the expression
 - Clean and intuitive terminal interface
 - Tab navigation between regex and text inputs
+- Options dialog for toggling global and case-insensitive flags
 
 ## Demo
 
@@ -59,6 +60,7 @@ The application will launch in full-screen mode with:
 ### Keyboard Shortcuts
 
 - **Tab**: Switch between regex input and text input
+- **Ctrl+P**: Open the options dialog to toggle regex flags
 - **Esc** or **Ctrl+C**: Exit the application
 
 ## Roadmap
@@ -74,6 +76,7 @@ Other available make targets:
 ```bash
 make run        # Run without installing
 make build      # Build the binary locally in bin/regex-tui
+make debug      # Build with debug flags and run locally
 make clean      # Remove built binary
 make uninstall  # Remove installed binary from $GOPATH/bin
 make lint       # Run go vet and go fmt
