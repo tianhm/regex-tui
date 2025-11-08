@@ -5,6 +5,7 @@ A terminal user interface (TUI) application for testing and visualizing regular 
 ## Features
 
 - Interactive regex editor with live validation
+- RE2 engine by default
 - Multi-line text input for testing
 - Visual highlighting of regex matches with alternating colors
 - Real-time feedback as you type the expression
@@ -65,9 +66,12 @@ The application will launch in full-screen mode with:
 
 ## Roadmap
 
+- Add CLI parameters to set expression and options
 - Support highlighting while editing text
-- Support PCRE
+- Visualize whitespaces
 - Support scroll with long texts
+- Open files
+- Support PCRE
 
 ## Development
 
