@@ -11,6 +11,7 @@ import (
 const (
 	GlobalOption      = "Global"
 	InsensitiveOption = "Insensitive"
+	PCREOption        = "PCRE"
 )
 
 type Model struct {
@@ -20,7 +21,7 @@ type Model struct {
 
 func New() *Model {
 	return &Model{
-		options:             multiselect.New([]string{GlobalOption, InsensitiveOption}),
+		options:             multiselect.New([]string{GlobalOption, InsensitiveOption, PCREOption}),
 		isOptionsDialogOpen: false,
 	}
 }

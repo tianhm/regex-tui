@@ -1,16 +1,39 @@
 package expression
 
 import (
-	"regexp"
-
 	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/vitor-mariano/regex-tui/internal/styles"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/pcre"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/re2"
 )
 
 type Model struct {
 	input textinput.Model
 	width int
+	pcre  bool
+}
+
+func newValidate(usePCRE bool) func(s string) error {
+	if usePCRE {
+		return func(s string) error {
+			if s == "" {
+				return nil
+			}
+
+			_, err := pcre.New(s)
+			return err
+		}
+	}
+
+	return func(s string) error {
+		if s == "" {
+			return nil
+		}
+
+		_, err := re2.New(s)
+		return err
+	}
 }
 
 func New(initialValue string) *Model {
@@ -25,12 +48,11 @@ func New(initialValue string) *Model {
 	})
 	m.Prompt = ""
 	m.Placeholder = "Expression"
-	m.Validate = func(s string) error {
-		_, err := regexp.Compile(s)
-		return err
-	}
 
-	return &Model{input: m}
+	model := &Model{input: m}
+	model.input.Validate = newValidate(model.pcre)
+
+	return model
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -62,4 +84,11 @@ func (m *Model) SetWidth(width int) {
 
 func (m *Model) GetInput() *textinput.Model {
 	return &m.input
+}
+
+func (m *Model) SetPCRE(enabled bool) {
+	m.pcre = enabled
+	m.input.Validate = newValidate(m.pcre)
+
+	m.input.SetValue(m.input.Value())
 }

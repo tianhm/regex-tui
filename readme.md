@@ -5,7 +5,7 @@ A terminal user interface (TUI) application for testing and visualizing regular 
 ## Features
 
 - Interactive regex editor with live validation
-- RE2 engine by default
+- RE2 engine by default; PCRE option
 - Multi-line text input for testing
 - Visual highlighting of regex matches with alternating colors
 - Real-time feedback as you type the expression
@@ -71,7 +71,6 @@ The application will launch in full-screen mode with:
 - Visualize whitespaces
 - Support scroll with long texts
 - Open files
-- Support PCRE
 
 ## Development
 

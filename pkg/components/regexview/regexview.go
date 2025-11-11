@@ -1,11 +1,13 @@
 package regexview
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/muesli/reflow/wordwrap"
+	. "github.com/vitor-mariano/regex-tui/pkg/regex"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/pcre"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/re2"
 )
 
 var (
@@ -20,11 +22,13 @@ var (
 )
 
 type Model struct {
-	expression          *regexp.Regexp
-	baseExpStr          string
-	global, insensitive bool
-	value               string
-	width, height       int
+	expression    Regex
+	baseExpStr    string
+	global        bool
+	insensitive   bool
+	pcre          bool
+	value         string
+	width, height int
 }
 
 func New(width, height int) *Model {
@@ -77,13 +81,21 @@ func (m *Model) setRegexp(expression string) error {
 	if m.insensitive {
 		prefix = "(?i)"
 	}
+	combined := prefix + expression
 
-	expr, err := regexp.Compile(prefix + expression)
-	if err == nil {
-		m.expression = expr
+	var err error
+	var regex Regex
+	if m.pcre {
+		regex, err = pcre.New(combined)
+	} else {
+		regex, err = re2.New(combined)
+	}
+	if err != nil {
+		return err
 	}
 
-	return err
+	m.expression = regex
+	return nil
 }
 
 func (m *Model) SetExpression(expression string) error {
@@ -101,6 +113,11 @@ func (m *Model) SetGlobal(global bool) {
 
 func (m *Model) SetInsensitive(insensitive bool) {
 	m.insensitive = insensitive
+	m.setRegexp(m.baseExpStr)
+}
+
+func (m *Model) SetPCRE(pcre bool) {
+	m.pcre = pcre
 	m.setRegexp(m.baseExpStr)
 }
 
