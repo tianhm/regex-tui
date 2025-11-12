@@ -48,6 +48,9 @@ func New() model {
 			si.GetView().SetInsensitive(selected)
 		case options.Regexp2Option:
 			si.GetView().SetRegexp2(selected)
+			ei.GetInput().Err = si.GetView().SetRegexp2(selected)
+			// Force re-evaluation with the new engine.
+			si.SetExpression(ei.GetInput().Value())
 		}
 	})
 
