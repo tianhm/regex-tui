@@ -34,10 +34,10 @@ type model struct {
 }
 
 func New() model {
-	ei := expression.New(initialExpression)
-	ei.GetInput().Focus()
-
 	si := subject.New(initialSubject, initialExpression)
+
+	ei := expression.New(initialExpression, si.GetView())
+	ei.GetInput().Focus()
 
 	d := options.New()
 	d.OnToggle(func(item string, selected bool) {
@@ -46,6 +46,11 @@ func New() model {
 			si.GetView().SetGlobal(selected)
 		case options.InsensitiveOption:
 			si.GetView().SetInsensitive(selected)
+		case options.Regexp2Option:
+			si.GetView().SetRegexp2(selected)
+			ei.GetInput().Err = si.GetView().SetRegexp2(selected)
+			// Force re-evaluation with the new engine.
+			si.SetExpression(ei.GetInput().Value())
 		}
 	})
 

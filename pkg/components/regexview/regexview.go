@@ -1,11 +1,13 @@
 package regexview
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/muesli/reflow/wordwrap"
+	. "github.com/vitor-mariano/regex-tui/pkg/regex"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/re2"
+	"github.com/vitor-mariano/regex-tui/pkg/regex/regexp2"
 )
 
 var (
@@ -20,11 +22,13 @@ var (
 )
 
 type Model struct {
-	expression          *regexp.Regexp
-	baseExpStr          string
-	global, insensitive bool
-	value               string
-	width, height       int
+	expression    Regex
+	baseExpStr    string
+	global        bool
+	insensitive   bool
+	regexp2       bool
+	value         string
+	width, height int
 }
 
 func New(width, height int) *Model {
@@ -72,18 +76,27 @@ func (m *Model) View() string {
 	return m.renderContainer(b.String())
 }
 
+func (m *Model) newRegexp(expression string) (Regex, error) {
+	if m.regexp2 {
+		return regexp2.New(expression)
+	}
+
+	return re2.New(expression)
+}
+
 func (m *Model) setRegexp(expression string) error {
 	prefix := ""
 	if m.insensitive {
 		prefix = "(?i)"
 	}
 
-	expr, err := regexp.Compile(prefix + expression)
-	if err == nil {
-		m.expression = expr
+	regex, err := m.newRegexp(prefix + expression)
+	if err != nil {
+		return err
 	}
 
-	return err
+	m.expression = regex
+	return nil
 }
 
 func (m *Model) SetExpression(expression string) error {
@@ -104,6 +117,11 @@ func (m *Model) SetInsensitive(insensitive bool) {
 	m.setRegexp(m.baseExpStr)
 }
 
+func (m *Model) SetRegexp2(regexp2 bool) error {
+	m.regexp2 = regexp2
+	return m.setRegexp(m.baseExpStr)
+}
+
 func (m *Model) SetValue(value string) {
 	m.value = value
 }
@@ -119,4 +137,9 @@ func (m *Model) SetHeight(height int) {
 func (m *Model) SetSize(width, height int) {
 	m.SetWidth(width)
 	m.SetHeight(height)
+}
+
+func (m *Model) Validate(expression string) error {
+	_, err := m.newRegexp(expression)
+	return err
 }

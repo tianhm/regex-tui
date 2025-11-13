@@ -1,19 +1,19 @@
 package expression
 
 import (
-	"regexp"
-
 	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/vitor-mariano/regex-tui/internal/styles"
+	"github.com/vitor-mariano/regex-tui/pkg/components/regexview"
 )
 
 type Model struct {
 	input textinput.Model
+	view  *regexview.Model
 	width int
 }
 
-func New(initialValue string) *Model {
+func New(initialValue string, view *regexview.Model) *Model {
 	m := textinput.New()
 	m.SetValue(initialValue)
 	m.SetVirtualCursor(true)
@@ -25,12 +25,13 @@ func New(initialValue string) *Model {
 	})
 	m.Prompt = ""
 	m.Placeholder = "Expression"
-	m.Validate = func(s string) error {
-		_, err := regexp.Compile(s)
-		return err
+
+	model := &Model{input: m, view: view}
+	model.input.Validate = func(expr string) error {
+		return model.view.Validate(expr)
 	}
 
-	return &Model{input: m}
+	return model
 }
 
 func (m *Model) Init() tea.Cmd {

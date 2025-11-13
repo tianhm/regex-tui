@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles/v2 v2.0.0-beta.1.0.20250820203609-601216f68ee2
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.6
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.3
+	github.com/dlclark/regexp2 v1.11.5
 	github.com/muesli/reflow v0.3.0
 )
 
