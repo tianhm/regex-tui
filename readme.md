@@ -27,7 +27,7 @@ The simplest way to install regex-tui is using `go install`:
 go install github.com/vitor-mariano/regex-tui@latest
 ```
 
-This will install the binary to your `$GOPATH/bin` directory. Make sure this directory is in your `PATH`.
+This will install the binary to your `$HOME/go` directory. Make sure this directory is in your `PATH`.
 
 ### Manual Installation with Make
 
@@ -54,6 +54,7 @@ regex-tui
 ```
 
 The application will launch in full-screen mode with:
+
 - A regex pattern input field at the top (starts with example pattern `[A-Z]\w+`)
 - A text input area below (starts with example text "Hello World!")
 - Matches highlighted in alternating yellow and blue colors
