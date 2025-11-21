@@ -29,6 +29,15 @@ go install github.com/vitor-mariano/regex-tui@latest
 
 This will install the binary to your `$HOME/go` directory. Make sure this directory is in your `PATH`.
 
+### Arch Linux
+
+regex-rui is available on Arch Linux through AUR. You can use [yay](https://github.com/Jguer/yay) or any other AUR helper you prefer:
+
+```bash
+yay -S regex-tui
+```
+
+
 ### Manual Installation with Make
 
 Clone the repository and use Make to build and install:
