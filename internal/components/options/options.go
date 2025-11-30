@@ -39,6 +39,10 @@ func (m *Model) OnToggle(onToggle func(item string, selected bool)) {
 	m.options.SetSelected(GlobalOption)
 }
 
+func (m *Model) SetSelected(items ...string) {
+	m.options.SetSelected(items...)
+}
+
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:

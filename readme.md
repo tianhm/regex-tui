@@ -37,7 +37,6 @@ regex-rui is available on Arch Linux through AUR. You can use [yay](https://gith
 yay -S regex-tui
 ```
 
-
 ### Manual Installation with Make
 
 Clone the repository and use Make to build and install:
@@ -68,6 +67,50 @@ The application will launch in full-screen mode with:
 - A text input area below (starts with example text "Hello World!")
 - Matches highlighted in alternating yellow and blue colors
 
+### Command-Line Options
+
+regex-tui supports several command-line flags to customize the initial state:
+
+#### Available Flags
+
+| Flag            | Shorthand | Description                                       |
+| --------------- | --------- | ------------------------------------------------- |
+| `--regex`       | `-r`      | Initial regex pattern                             |
+| `--text`        | `-t`      | Initial text subject                              |
+| `--empty`       | `-e`      | Start with empty expression and text              |
+| `--no-global`   |           | Disable global flag (match only first occurrence) |
+| `--insensitive` |           | Enable case-insensitive flag                      |
+| `--regexp2`     |           | Use regexp2 engine (partial PCRE compatibility)   |
+
+**Notes:**
+
+- When reading from stdin, the `--text` / `-t` flag cannot be used and will result in an error.
+
+#### Examples
+
+```bash
+# Custom regex with empty text
+regex-tui -e -r "[A-Z]\w+"
+
+# Custom regex and text
+regex-tui -r "\d{3}-\d{4}" -t "Call me at 555-1234"
+
+# Case-insensitive matching (global is enabled by default)
+regex-tui -r "error" -t "Error: invalid input" --insensitive
+
+# Match only first occurrence
+regex-tui -r "foo" -t "foo bar foo" --no-global
+
+# Use regexp2 engine with lookahead
+regex-tui -r "foo(?=bar)" -t "foobar foobaz" --regexp2
+
+# Piped text with custom regex
+cat log.txt | regex-tui -r "ERROR.*"
+
+# All flags combined
+cat file.txt | regex-tui -r "\w+" --no-global --insensitive --regexp2
+```
+
 ### Keyboard Shortcuts
 
 - **Tab**: Switch between regex input and text input
@@ -76,11 +119,9 @@ The application will launch in full-screen mode with:
 
 ## Roadmap
 
-- Add CLI parameters to set expression and options
 - Support highlighting while editing text
 - Visualize whitespaces
 - Support scroll with long texts
-- Open files
 
 ## Development
 

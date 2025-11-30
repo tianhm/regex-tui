@@ -18,10 +18,13 @@ const (
 	inputTypeSubject
 )
 
-const (
-	initialExpression = "[A-Z]\\w+"
-	initialSubject    = "Hello World!"
-)
+type Config struct {
+	InitialExpression string
+	InitialSubject    string
+	Global            bool
+	Insensitive       bool
+	Regexp2           bool
+}
 
 type model struct {
 	expressionInput *expression.Model
@@ -33,10 +36,10 @@ type model struct {
 	width, height    int
 }
 
-func New() model {
-	si := subject.New(initialSubject, initialExpression)
+func New(config Config) model {
+	si := subject.New(config.InitialSubject, config.InitialExpression)
 
-	ei := expression.New(initialExpression, si.GetView())
+	ei := expression.New(config.InitialExpression, si.GetView())
 	ei.GetInput().Focus()
 
 	d := options.New()
@@ -53,6 +56,21 @@ func New() model {
 			si.SetExpression(ei.GetInput().Value())
 		}
 	})
+
+	var selectedOptions []string
+	if config.Global {
+		selectedOptions = append(selectedOptions, options.GlobalOption)
+	}
+	if config.Insensitive {
+		selectedOptions = append(selectedOptions, options.InsensitiveOption)
+	}
+	if config.Regexp2 {
+		selectedOptions = append(selectedOptions, options.Regexp2Option)
+	}
+
+	if len(selectedOptions) > 0 {
+		d.SetSelected(selectedOptions...)
+	}
 
 	return model{
 		expressionInput: ei,
