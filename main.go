@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/vitor-mariano/regex-tui/internal/screen"
+	"github.com/vitor-mariano/regex-tui/internal/tty"
 )
 
 const (
@@ -23,9 +24,9 @@ func main() {
 
 	var p *tea.Program
 	if hasStdin {
-		tty, err := os.Open("/dev/tty")
+		tty, err := tty.OpenInputTTY()
 		if err != nil {
-			log.Fatalf("failed to open /dev/tty: %v\n", err)
+			log.Fatalf("failed to open TTY: %v\n", err)
 		}
 		defer tty.Close()
 
