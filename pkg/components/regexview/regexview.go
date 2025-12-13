@@ -3,7 +3,7 @@ package regexview
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/muesli/reflow/wordwrap"
 	. "github.com/vitor-mariano/regex-tui/pkg/regex"
 	"github.com/vitor-mariano/regex-tui/pkg/regex/re2"

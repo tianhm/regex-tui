@@ -1,8 +1,8 @@
 package expression
 
 import (
-	"github.com/charmbracelet/bubbles/v2/textinput"
-	tea "github.com/charmbracelet/bubbletea/v2"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 	"github.com/vitor-mariano/regex-tui/internal/styles"
 	"github.com/vitor-mariano/regex-tui/pkg/components/regexview"
 )

@@ -1,7 +1,7 @@
 package screen
 
 import (
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/vitor-mariano/regex-tui/internal/styles"
 )
 

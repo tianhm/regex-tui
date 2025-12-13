@@ -1,6 +1,6 @@
 package screen
 
-import "github.com/charmbracelet/bubbles/v2/key"
+import "charm.land/bubbles/v2/key"
 
 type keyMap struct {
 	Exit          key.Binding
