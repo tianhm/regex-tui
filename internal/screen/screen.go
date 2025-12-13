@@ -1,6 +1,9 @@
 package screen
 
 import (
+	"os"
+	"os/exec"
+
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
@@ -17,6 +20,11 @@ const (
 	inputTypeExpression inputType = iota
 	inputTypeSubject
 )
+
+type editorFinishedMsg struct {
+	tempFile string
+	err      error
+}
 
 type Config struct {
 	InitialExpression string
@@ -93,6 +101,44 @@ func (m *model) setSize(width, height int) {
 	m.subjectInput.SetSize(width, height-subjectVSpacing)
 }
 
+func findEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
+	}
+
+	fallbacks := []string{"vim", "vi", "emacs"}
+	for _, editor := range fallbacks {
+		if path, err := exec.LookPath(editor); err == nil {
+			return path
+		}
+	}
+
+	return "nano"
+}
+
+func (m *model) openEditor() tea.Cmd {
+	editor := findEditor()
+
+	tmpFile, err := os.CreateTemp("", "regex-tui-*.txt")
+	if err != nil {
+		return nil
+	}
+	defer tmpFile.Close()
+
+	content := m.subjectInput.GetInput().Value()
+	if _, err := tmpFile.WriteString(content); err != nil {
+		os.Remove(tmpFile.Name())
+		return nil
+	}
+
+	return tea.ExecProcess(
+		exec.Command(editor, tmpFile.Name()),
+		func(err error) tea.Msg {
+			return editorFinishedMsg{tempFile: tmpFile.Name(), err: err}
+		},
+	)
+}
+
 func (m *model) updateScreen(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 0, 2)
 
@@ -119,6 +165,9 @@ func (m *model) updateScreen(msg tea.Msg) tea.Cmd {
 			if !m.options.IsOpen() {
 				m.options.Open()
 			}
+
+		case key.Matches(msg, keys.OpenEditor):
+			return m.openEditor()
 		}
 	}
 
@@ -138,6 +187,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.setSize(msg.Width, msg.Height)
+
+	case editorFinishedMsg:
+		if msg.err == nil {
+			content, err := os.ReadFile(msg.tempFile)
+			if err == nil {
+				m.subjectInput.SetValue(string(content))
+			}
+		}
+		os.Remove(msg.tempFile)
+		return m, nil
 
 	case tea.KeyPressMsg:
 		if key.Matches(msg, keys.Exit) {

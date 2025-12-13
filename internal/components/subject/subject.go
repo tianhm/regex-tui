@@ -87,3 +87,8 @@ func (m *Model) GetView() *regexview.Model {
 func (m *Model) SetExpression(expression string) error {
 	return m.view.SetExpression(expression)
 }
+
+func (m *Model) SetValue(value string) {
+	m.input.SetValue(value)
+	m.view.SetValue(value)
+}

@@ -6,6 +6,7 @@ type keyMap struct {
 	Exit          key.Binding
 	SwitchInput   key.Binding
 	ToggleOptions key.Binding
+	OpenEditor    key.Binding
 }
 
 var keys = keyMap{
@@ -21,15 +22,19 @@ var keys = keyMap{
 		key.WithKeys("ctrl+p"),
 		key.WithHelp("ctrl+p", "options"),
 	),
+	OpenEditor: key.NewBinding(
+		key.WithKeys("ctrl+o"),
+		key.WithHelp("ctrl+o", "edit text"),
+	),
 }
 
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Exit, k.SwitchInput},
-		{k.ToggleOptions},
+		{k.ToggleOptions, k.OpenEditor},
 	}
 }
 
 func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Exit, k.SwitchInput, k.ToggleOptions}
+	return []key.Binding{k.Exit, k.SwitchInput, k.ToggleOptions, k.OpenEditor}
 }
