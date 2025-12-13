@@ -1,14 +1,29 @@
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := bin/regex-tui
 
 GOPATH := $(shell go env GOPATH)
+VERSION ?= master
 
-.PHONY: build
-build:
+PLATFORMS := linux darwin windows
+ARCHITECTURES := amd64 arm64
+
+bin/regex-tui:
 	go build -o bin/regex-tui main.go
 
 .PHONY: clean
 clean:
-	rm -f bin/regex-tui
+	rm -f bin/*
+
+.PHONY: release
+release: clean
+	@for platform in $(PLATFORMS); do \
+		for arch in $(ARCHITECTURES); do \
+			ext=""; \
+			if [ "$$platform" = "windows" ]; then ext=".exe"; fi; \
+			output="bin/regex-tui_$(VERSION)_$${platform}.$${arch}$${ext}"; \
+			echo "Building $$output..."; \
+			GOOS=$$platform GOARCH=$$arch go build -o $$output main.go; \
+		done; \
+	done
 
 .PHONY: debug
 debug:
