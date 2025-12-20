@@ -115,6 +115,7 @@ cat file.txt | regex-tui -r "\w+" --no-global --insensitive --regexp2
 
 - **Tab**: Switch between regex input and text input
 - **Ctrl+P**: Open the options dialog to toggle regex flags
+- **Ctrl+O**: Open text content in an external editor (uses `$EDITOR` environment variable)
 - **Esc** or **Ctrl+C**: Exit the application
 
 ## Roadmap
