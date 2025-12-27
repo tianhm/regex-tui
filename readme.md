@@ -27,7 +27,7 @@ The simplest way to install regex-tui is using `go install`:
 go install github.com/vitor-mariano/regex-tui@latest
 ```
 
-This will install the binary to your `$HOME/go` directory. Make sure this directory is in your `PATH`.
+This will install the binary to your `$HOME/go/bin` directory. Make sure this directory is in your `PATH`.
 
 ### Arch Linux
 
