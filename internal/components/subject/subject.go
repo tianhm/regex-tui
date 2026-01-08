@@ -20,6 +20,7 @@ func New(initialValue, initialExpression string) *Model {
 	m := textarea.New()
 	m.SetValue(initialValue)
 	m.SetVirtualCursor(false)
+	m.MaxHeight = 0
 	m.SetStyles(textarea.Styles{
 		Cursor: textarea.CursorStyle{
 			Color: styles.PrimaryColor,
