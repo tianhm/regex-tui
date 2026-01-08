@@ -78,6 +78,8 @@ func (m *Model) View() string {
 		s = &styles.FocusedInputContainerStyle
 	}
 
+	m.view.SetScrollYOffset(m.input.ScrollYOffset())
+
 	v := m.view.View()
 
 	m.cursor.SetChar(" ")

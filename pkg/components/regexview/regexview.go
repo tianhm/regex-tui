@@ -29,6 +29,7 @@ type Model struct {
 	regexp2       bool
 	value         string
 	width, height int
+	scrollYOffset int
 }
 
 func New(width, height int) *Model {
@@ -39,10 +40,29 @@ func New(width, height int) *Model {
 }
 
 func (m *Model) renderContainer(s string) string {
+	wrapped := wordwrap.String(s, m.width)
+	lines := strings.Split(wrapped, "\n")
+
+	start := m.scrollYOffset
+	if start > len(lines) {
+		start = len(lines)
+	}
+
+	end := start + m.height
+	if end > len(lines) {
+		end = len(lines)
+	}
+
+	visibleLines := lines[start:end]
+
+	for len(visibleLines) < m.height {
+		visibleLines = append(visibleLines, "")
+	}
+
 	return lipgloss.Place(
 		m.width, m.height,
 		lipgloss.Left, lipgloss.Left,
-		wordwrap.String(s, m.width),
+		strings.Join(visibleLines, "\n"),
 	)
 }
 
@@ -137,6 +157,10 @@ func (m *Model) SetHeight(height int) {
 func (m *Model) SetSize(width, height int) {
 	m.SetWidth(width)
 	m.SetHeight(height)
+}
+
+func (m *Model) SetScrollYOffset(offset int) {
+	m.scrollYOffset = offset
 }
 
 func (m *Model) Validate(expression string) error {
