@@ -89,7 +89,10 @@ func New(config Config) model {
 }
 
 func (m model) Init() tea.Cmd {
-	return m.expressionInput.Init()
+	return tea.Batch(
+		m.expressionInput.Init(),
+		m.subjectInput.Init(),
+	)
 }
 
 func (m *model) setSize(width, height int) {
@@ -151,11 +154,11 @@ func (m *model) updateScreen(msg tea.Msg) tea.Cmd {
 			case inputTypeExpression:
 				m.focusedInputType = inputTypeSubject
 				m.expressionInput.GetInput().Blur()
-				cmd = m.subjectInput.GetInput().Focus()
+				cmd = m.subjectInput.Focus()
 
 			case inputTypeSubject:
 				m.focusedInputType = inputTypeExpression
-				m.subjectInput.GetInput().Blur()
+				m.subjectInput.Blur()
 				cmd = m.expressionInput.GetInput().Focus()
 			}
 
