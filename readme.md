@@ -120,9 +120,8 @@ cat file.txt | regex-tui -r "\w+" --no-global --insensitive --regexp2
 
 ## Roadmap
 
-- Support highlighting while editing text
 - Visualize whitespaces
-- Support scroll with long texts
+- Add mouse support
 
 ## Development
 
