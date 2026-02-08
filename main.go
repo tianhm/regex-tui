@@ -65,6 +65,8 @@ func getInitialConfig() screen.Config {
 
 	regexp2 := flag.Bool("regexp2", false, "Use regexp2 engine (partial PCRE compatibility)")
 
+	noWhitespaces := flag.Bool("no-whitespaces", false, "Disable whitespace visualization")
+
 	flag.Parse()
 
 	if hasStdin() && *text != "" {
@@ -92,6 +94,7 @@ func getInitialConfig() screen.Config {
 	}
 
 	global := !*noGlobal
+	whitespaces := !*noWhitespaces
 
 	return screen.Config{
 		InitialExpression: regexExpression,
@@ -99,5 +102,6 @@ func getInitialConfig() screen.Config {
 		Global:            global,
 		Insensitive:       *insensitive,
 		Regexp2:           *regexp2,
+		Whitespaces:       whitespaces,
 	}
 }

@@ -12,6 +12,7 @@ const (
 	GlobalOption      = "Global"
 	InsensitiveOption = "Insensitive"
 	Regexp2Option     = "Regexp2"
+	WhitespacesOption = "Whitespaces"
 )
 
 type Model struct {
@@ -21,7 +22,12 @@ type Model struct {
 
 func New() *Model {
 	return &Model{
-		options:             multiselect.New([]string{GlobalOption, InsensitiveOption, Regexp2Option}),
+		options:             multiselect.New([]string{
+			GlobalOption,
+			InsensitiveOption,
+			Regexp2Option,
+			WhitespacesOption,
+		}),
 		isOptionsDialogOpen: false,
 	}
 }
