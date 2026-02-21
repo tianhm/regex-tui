@@ -36,7 +36,7 @@ func New(initialValue, initialExpression string) *Model {
 
 	sv := regexview.New(0, 0)
 	sv.SetExpression(initialExpression)
-	sv.SetValue(initialValue)
+	sv.SetValue(m.Value())
 
 	c := cursor.New()
 	c.Style = lipgloss.NewStyle().Foreground(styles.PrimaryColor)

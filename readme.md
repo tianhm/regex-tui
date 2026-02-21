@@ -8,6 +8,7 @@ A terminal user interface (TUI) application for testing and visualizing regular 
 - RE2 engine by default; [regexp2](https://github.com/dlclark/regexp2) option with partial PCRE compatibility
 - Multi-line text input for testing
 - Visual highlighting of regex matches with alternating colors
+- Whitespace visualization: spaces (`·`) and line breaks (`↵`) are displayed as visible glyphs
 - Real-time feedback as you type the expression
 - Clean and intuitive terminal interface
 - Tab navigation between regex and text inputs
@@ -73,14 +74,15 @@ regex-tui supports several command-line flags to customize the initial state:
 
 #### Available Flags
 
-| Flag            | Shorthand | Description                                       |
-| --------------- | --------- | ------------------------------------------------- |
-| `--regex`       | `-r`      | Initial regex pattern                             |
-| `--text`        | `-t`      | Initial text subject                              |
-| `--empty`       | `-e`      | Start with empty expression and text              |
-| `--no-global`   |           | Disable global flag (match only first occurrence) |
-| `--insensitive` |           | Enable case-insensitive flag                      |
-| `--regexp2`     |           | Use regexp2 engine (partial PCRE compatibility)   |
+| Flag               | Shorthand | Description                                       |
+| ------------------ | --------- | ------------------------------------------------- |
+| `--regex`          | `-r`      | Initial regex pattern                             |
+| `--text`           | `-t`      | Initial text subject                              |
+| `--empty`          | `-e`      | Start with empty expression and text              |
+| `--no-global`      |           | Disable global flag (match only first occurrence) |
+| `--insensitive`    |           | Enable case-insensitive flag                      |
+| `--regexp2`        |           | Use regexp2 engine (partial PCRE compatibility)   |
+| `--no-whitespaces` |           | Disable whitespace visualization                  |
 
 **Notes:**
 
@@ -111,6 +113,19 @@ cat log.txt | regex-tui -r "ERROR.*"
 cat file.txt | regex-tui -r "\w+" --no-global --insensitive --regexp2
 ```
 
+### Whitespace Visualization
+
+Invisible characters are displayed as visible glyphs to help debug whitespace-sensitive regex patterns:
+
+| Character  | Glyph |
+| ---------- | ----- |
+| Space      | `·`   |
+| Line break | `↵`   |
+
+Whitespace visualization is **enabled by default**. Glyphs inside regex matches inherit the match highlight color; glyphs outside matches are dimmed.
+
+To disable at launch, use `--no-whitespaces`. To toggle at runtime, open the options menu with **Ctrl+P** and toggle the "Whitespaces" option.
+
 ### Keyboard Shortcuts
 
 - **Tab**: Switch between regex input and text input
@@ -120,7 +135,6 @@ cat file.txt | regex-tui -r "\w+" --no-global --insensitive --regexp2
 
 ## Roadmap
 
-- Visualize whitespaces
 - Add mouse support
 
 ## Development

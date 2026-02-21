@@ -32,6 +32,7 @@ type Config struct {
 	Global            bool
 	Insensitive       bool
 	Regexp2           bool
+	Whitespaces       bool
 }
 
 type model struct {
@@ -62,6 +63,8 @@ func New(config Config) model {
 			ei.GetInput().Err = si.GetView().SetRegexp2(selected)
 			// Force re-evaluation with the new engine.
 			si.SetExpression(ei.GetInput().Value())
+		case options.WhitespacesOption:
+			si.GetView().SetShowWhitespaces(selected)
 		}
 	})
 
@@ -74,6 +77,9 @@ func New(config Config) model {
 	}
 	if config.Regexp2 {
 		selectedOptions = append(selectedOptions, options.Regexp2Option)
+	}
+	if config.Whitespaces {
+		selectedOptions = append(selectedOptions, options.WhitespacesOption)
 	}
 
 	if len(selectedOptions) > 0 {
