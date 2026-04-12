@@ -243,11 +243,11 @@ func (m model) View() tea.View {
 	layers := []*lipgloss.Layer{baseLayer}
 	if m.options.IsOpen() {
 		optionsLayer := lipgloss.NewLayer(m.options.View())
-		optionsLayer.X((m.width - optionsLayer.GetWidth()) / 2)
-		optionsLayer.Y((m.height - optionsLayer.GetHeight()) / 2)
+		optionsLayer.X((m.width - optionsLayer.Width()) / 2)
+		optionsLayer.Y((m.height - optionsLayer.Height()) / 2)
 
 		layers = append(layers, optionsLayer)
 	}
 
-	return tea.NewView(lipgloss.NewCanvas(layers...).Render())
+	return tea.NewView(lipgloss.NewCompositor(layers...).Render())
 }

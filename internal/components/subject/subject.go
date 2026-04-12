@@ -87,13 +87,12 @@ func (m *Model) View() string {
 	c := m.cursor.View()
 	ic := m.input.Cursor()
 
-	layers := make([]*lipgloss.Layer, 0, 2)
-	layers = append(layers, lipgloss.NewLayer(v))
+	layers := []*lipgloss.Layer{lipgloss.NewLayer(v)}
 	if ic != nil && !m.cursor.IsBlinked {
 		layers = append(layers, lipgloss.NewLayer(c).X(ic.X).Y(ic.Y))
 	}
 
-	return s.Width(m.width).Render(lipgloss.NewCanvas(layers...).Render())
+	return s.Width(m.width).Render(lipgloss.NewCompositor(layers...).Render())
 }
 
 func (m *Model) SetSize(width, height int) {
